@@ -1,5 +1,9 @@
 package es.upm.grise.profundizacion.file;
 
+import Exceptions.InvalidContentException;
+import Exceptions.WrongFileTypeException;
+
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,24 +15,41 @@ public class File {
 	/*
 	 * Constructor
 	 */
-    public File() {
-        
+    public File(FileType type) {
+        this.type = type;
+        this.content = new ArrayList<>();
     }
 
 	/*
 	 * Method to code / test
 	 */
-    public void addProperty(char[] content) {
-
+    public void addProperty(char[] newcontent) throws InvalidContentException, WrongFileTypeException {
+        if (newcontent == null) {
+            throw new InvalidContentException("El contenido es null");
+        }
+        if (this.type == FileType.IMAGE) {
+            throw new WrongFileTypeException("No se pueden añadir propiedades a un archivo de tipo IMAGE");
+        }
+        for (char c : newcontent) {
+            content.add(c);
+        }
     }
 
 	/*
 	 * Method to code / test
 	 */
     public long getCRC32() {
-    	
-        return 0L;
-        
+        //ContentSize()*2
+        if (content.isEmpty()){
+            return 0L;
+        }else{
+            byte[]bytes = new byte[content.size()];
+            for(int i=0;i<content.size();i++){
+                bytes[i] = (byte) (content.get(i) & 0x00FF);
+            }
+            Long crc32 = ByteBuffer.wrap(bytes).getLong();
+            return crc32;
+        }
     }
     
     
